@@ -5,6 +5,7 @@
 ## Introduction
 This repository contains original implementation of the paper 'BlitzNet: A Real-Time Deep Network for Scene Understanding' by Nikita Dvornik, Konstantin Shmelkov, Julien Mairal and Cordelia Schmid.
 The paper is available at https://arxiv.org/abs/1708.02813
+
 The page of the paper is http://thoth.inrialpes.fr/research/blitznet/
 
 ## Citing
@@ -94,4 +95,4 @@ and install all the requirements listed above.
     ```
     To simplify the running process we associated all the checkpoints with the epoch 1000 so, for all the models, you need to specify `--ckpt=1` when testing.
     
-    __NOTE__: When genetaring detections on first N images (```--save_first_n=N```), to filter bounding boxes  with low score leaving only the confident ones specify an extra flag difining the confidence threshold, let's say of 0.5: ```--eval_min_conf=0.5```. 
+    __NOTE__: When generating detections on first N images (```--save_first_n=N```), to filter bounding boxes  with low score leaving only the confident ones, specify an extra flag defining the confidence threshold, let's say of 0.5: ```--eval_min_conf=0.5```. 
