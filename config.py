@@ -15,7 +15,8 @@ parser.add_argument("--run_name", type=str, required=True)
 parser.add_argument("--ckpt", default=0, type=int)
 
 # The dataset you want to train/test the model on
-parser.add_argument("--dataset", default='voc07', choices=['voc07', 'voc12', 'voc07+12',
+parser.add_argument("--dataset", default='voc07', choices=['voc07', 'voc12-train', 'voc12-val',
+                                                           'voc12-trainval', 'voc07+12',
                                                            'coco', 'voc07+12-segfull',
                                                            'voc07+12-segmentation',
                                                            'coco-seg'])

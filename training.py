@@ -289,8 +289,12 @@ def main(argv=None):  # pylint: disable=unused-argument
 
     if args.dataset == 'voc07':
         dataset = get_dataset('voc07_trainval')
-    if args.dataset == 'voc12':
-        dataset = get_dataset('voc12-' + args.split)
+    if args.dataset == 'voc12-trainval':
+        dataset = get_dataset('voc12-train-segmentation', 'voc12-val')
+    if args.dataset == 'voc12-train':
+        dataset = get_dataset('voc12-train-segmentation')
+    if args.dataset == 'voc12-val':
+        dataset = get_dataset('voc12-val-segmentation')
     if args.dataset == 'voc07+12':
         dataset = get_dataset('voc07_trainval', 'voc12_train', 'voc12_val')
     if args.dataset == 'voc07+12-segfull':

@@ -67,6 +67,7 @@ and install all the requirements listed above.
     ```
     Here, `--run_name` is a required argument that specifies the name of the experiment (needed to restore the weights later in testing and to visualize statistics in Tensorboard), `--dataset` specifies the name of the dataset you want to train on. See the relation between this name and the protobuf dataset files in the 'main' function of training.py. For more information about flags and running options read `config.py`.
     During the training you checkpoints will be automatically saved every 1000 iterations in $HOME/archive/BlitzNet300_x4_VOC0712_detseg/ and all the training statistics will be dumped to Tensorboard every 100 iterations.
+3.  To train on a particular split of VOC12 please specify the flag --dataset=voc12-splitname, where splitname is in [train, val, trainval]. Training on VOC07 operates on both train and val splits by default and is called with a flag --dataset=VOC07.
 
 ## Testing a model
 1. If your model was successfully trained and you want to evaluate the performance of a particular checkpoint (let's say 65000 - the last one) on VOC07 test and you want visualization of estimated bounding boxes for the first 100 images in the list , you need to run

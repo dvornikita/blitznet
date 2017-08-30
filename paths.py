@@ -26,6 +26,3 @@ RESULTS_DIR = check(os.path.join(EVAL_DIR, 'Results/'))
 
 # Where the imagenet weights are located
 INIT_WEIGHTS_DIR = check(os.path.join(EVAL_DIR, 'Weights_imagenet/'))
-
-# Where the logs are dumped
-INIT_WEIGHTS_DIR = check(os.path.join(EVAL_DIR, 'Logs/'))
