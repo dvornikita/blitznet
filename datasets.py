@@ -207,7 +207,7 @@ def create_voc_dataset(year, split, segmentation=False, augmented_seg=False):
     assert not ((year=='07' or split=='val') and augmented_seg==True), \
         'There is no extra segmentation masks for VOC07 or VOC12-val'
 
-    loader = VOCLoader(year, split, segmentation=True, augmented_seg=augmented_seg)
+    loader = VOCLoader(year, split, segmentation=segmentation, augmented_seg=augmented_seg)
     print("Contains %i files" % len(loader.get_filenames()))
     output_file = os.path.join(DATASETS_ROOT, 'voc%s-%s%s' %
                                (year, split, '-segmentation' * segmentation))
