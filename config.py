@@ -88,7 +88,7 @@ parser.add_argument("--no_seg_gt", default=False, action='store_true')
 parser.add_argument("--n_base_channels", default=64, type=int)
 
 # The size of the conv filter used to map feature maps to intermediate representations before segmentation
-parser.add_argument("--seg_filter_size", default=3, type=int, choices=[1, 3])
+parser.add_argument("--seg_filter_size", default=1, type=int, choices=[1, 3])
 
 # EVALUATION FLAGS
 # Automatic evaluation of several checkpoints
