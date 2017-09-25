@@ -19,7 +19,6 @@ VOC_CATS = ['__background__', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
 
 class VOCLoader():
     def __init__(self, year, split, segmentation=False, augmented_seg=False):
-        super().__init__()
         assert year in ['07', '12']
         self.dataset = 'voc'
         self.year = year
