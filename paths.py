@@ -26,3 +26,6 @@ RESULTS_DIR = check(os.path.join(EVAL_DIR, 'Results/'))
 
 # Where the imagenet weights are located
 INIT_WEIGHTS_DIR = check(os.path.join(EVAL_DIR, 'Weights_imagenet/'))
+
+# Where the demo images are located
+DEMO_DIR = check(os.path.join(EVAL_DIR, 'Demo/'))

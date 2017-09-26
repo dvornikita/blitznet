@@ -24,7 +24,7 @@ log = logging.getLogger()
 
 
 class Detector(object):
-    def __init__(self, sess, net, loader, config, no_gt=False):
+    def __init__(self, sess, net, loader, config, no_gt=False, folder=None):
         self.sess = sess
         self.net = net
         self.loader = loader
@@ -33,7 +33,10 @@ class Detector(object):
         self.no_gt = no_gt
         self.bboxer = PriorBoxGrid(self.config)
         self.build_detector()
-        self.directory = os.path.join(RESULTS_DIR, args.run_name)
+        if folder is not None:
+            self.directory = folder
+        else:
+            self.directory = os.path.join(RESULTS_DIR, args.run_name)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
@@ -48,8 +51,6 @@ class Detector(object):
         colors = np.load('Extra/colors.npy').tolist()
         font = ImageFont.truetype("Extra/FreeSansBold.ttf", 14)
 
-        match = quick_matching(dets, gt_bboxes, cats, gt_cats)
-        matched_gt = match.sum(0)
         h, w = img.shape[:2]
         image = Image.fromarray((img * 255).astype('uint8'))
         dr = ImageDraw.Draw(image)
@@ -70,6 +71,8 @@ class Detector(object):
 
         draw_gt = False
         if draw_gt:
+            match = quick_matching(dets, gt_bboxes, cats, gt_cats)
+            matched_gt = match.sum(0)
             for i in range(len(gt_cats)):
                 x, y, w, h = gt_bboxes[i]
                 color = 'white' if matched_gt[i] else 'blue'
@@ -90,14 +93,15 @@ class Detector(object):
                                   interpolation=cv2.INTER_NEAREST)
 
         image = Image.fromarray((img * 255).astype('uint8'))
-        seg_gt_draw = Image.fromarray((seg_gt).astype('uint8'), 'P')
         segmentation_draw = Image.fromarray((segmentation).astype('uint8'), 'P')
-        seg_gt_draw.putpalette(palette)
         segmentation_draw.putpalette(palette)
-
-        image.save(self.directory + '/%s.jpg' % name, 'JPEG')
-        seg_gt_draw.save(self.directory + '/%s_seg_gt.png' % name, 'PNG')
         segmentation_draw.save(self.directory + '/%s_segmentation.png' % name, 'PNG')
+        image.save(self.directory + '/%s.jpg' % name, 'JPEG')
+
+        if seg_gt:
+            seg_gt_draw = Image.fromarray((seg_gt).astype('uint8'), 'P')
+            seg_gt_draw.putpalette(palette)
+            seg_gt_draw.save(self.directory + '/%s_seg_gt.png' % name, 'PNG')
 
     def restore_from_ckpt(self, ckpt):
         ckpt_path = os.path.join(CKPT_ROOT, args.run_name, 'model.ckpt-%i000' % ckpt)
@@ -228,9 +232,9 @@ class Detector(object):
             net_out.extend([self.detection_list, self.score_list])
 
         if args.segment:
-            if seg_gt is not None:
-                seg_dict = {self.seg_ph: seg_gt}
-                feed_dict.update(seg_dict)
+            seg_gt_ = np.zeros(img.shape[:2]) if seg_gt is None else seg_gt
+            seg_dict = {self.seg_ph: seg_gt_}
+            feed_dict.update(seg_dict)
             net_out.extend([self.segmentation, self.mean_iou, self.iou_update])
 
         # outputs order with det and seg modes on:
