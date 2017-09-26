@@ -59,6 +59,15 @@ and install all the requirements listed above.
 4. If you would like to train on COCO, visit http://mscoco.org/ for more information. You will need to install [pycocotools](https://github.com/pdollar/coco) and place a dataset in the `$HOME/Datasets/`.
 5. We encode training data into a protobuf file to efficiently load the data during training. For this, you need to open the file `datasets.py` and uncomment needed dataset in the body of 'main' function. Then run the `datasets.py`. The dataset will be saved in `$HOME/Datasets/`.
 
+## Running a demo with pretrained net
+
+1. After you downloaded the models run (given you want to suppress all the detections with confidence less then 0.5) 
+
+    ```sh
+    python demo.py --run_name=BlitzNet300_COCO+VOC07+12 --x4 --detect --segment --eval_min_conf=0.5 --ckpt=1
+    ```
+2. Check the output in `$HOME/Demo/output`.
+
 ## Training a model with ImageNet initialization
 1. Download the weights for [ResNet50](https://drive.google.com/open?id=0B7XqhdpFpfcIdWRTX1JSOEhubXM) or [VGG16](https://drive.google.com/open?id=0B7XqhdpFpfcITnk4X1p3ZDRqQmc) and unpack the archives to `$HOME/Weights_imagenet`. You can change this folder in `paths.py`. Note that we build our work based on the ResNet architecture so we recommend to use it in your experiments.
 2. To start training a model with ResNet50 backbone on VOC07+12 data (including extra annotations for segmentation) that operates on images of size 300x300 - a batch of 32 - and has a final layer of stride 4 to perform joint detection and segmentation with optimization strategy as in the original paper, you need to run the following command:
