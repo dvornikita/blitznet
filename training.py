@@ -59,8 +59,9 @@ def objective(location, confidence, refine_ph, classes_ph,
     def detection_loss(location, confidence, refine_ph, classes_ph, pos_mask):
         neg_mask = tf.logical_not(pos_mask)
         number_of_positives = tf.reduce_sum(tf.to_int32(pos_mask))
-        number_of_negatives = tf.minimum(3 * number_of_positives,
-                                        tf.shape(pos_mask)[1] - number_of_positives)
+        true_number_of_negatives = tf.minimum(3 * number_of_positives,
+                                              tf.shape(pos_mask)[1] - number_of_positives)
+        number_of_negatives = tf.maximum(1, true_number_of_negatives)
         normalizer = tf.to_float(tf.add(number_of_positives, number_of_negatives))
         tf.summary.scalar('batch/size', normalizer)
         num_pos_float = tf.to_float(number_of_positives)
@@ -71,8 +72,10 @@ def objective(location, confidence, refine_ph, classes_ph,
         tf.summary.scalar('loss/class_pos', pos_class_loss / num_pos_float)
 
         top_k_worst, top_k_inds = tf.nn.top_k(tf.boolean_mask(cross_entropy, neg_mask),
-                                            number_of_negatives)
-        neg_class_loss = tf.reduce_sum(top_k_worst)
+                                              number_of_negatives)
+        # to avoid the case where no positive boxes were sampled
+        neg_class_loss = tf.reduce_sum(top_k_worst) * \
+                         tf.cast(tf.greater(true_number_of_negatives, 0), tf.float32)
         class_loss = (neg_class_loss + pos_class_loss) / num_pos_float
         tf.summary.scalar('loss/class_neg', neg_class_loss / tf.to_float(number_of_negatives))
         tf.summary.scalar('loss/class', class_loss)
