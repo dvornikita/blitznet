@@ -61,10 +61,11 @@ def objective(location, confidence, refine_ph, classes_ph,
         number_of_positives = tf.reduce_sum(tf.to_int32(pos_mask))
         true_number_of_negatives = tf.minimum(3 * number_of_positives,
                                               tf.shape(pos_mask)[1] - number_of_positives)
+        # max is to avoid the case where no positive boxes were sampled
         number_of_negatives = tf.maximum(1, true_number_of_negatives)
+        num_pos_float = tf.to_float(tf.maximum(1, number_of_positives))
         normalizer = tf.to_float(tf.add(number_of_positives, number_of_negatives))
         tf.summary.scalar('batch/size', normalizer)
-        num_pos_float = tf.to_float(number_of_positives)
 
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=confidence,
                                                                        labels=classes_ph)
@@ -73,15 +74,18 @@ def objective(location, confidence, refine_ph, classes_ph,
 
         top_k_worst, top_k_inds = tf.nn.top_k(tf.boolean_mask(cross_entropy, neg_mask),
                                               number_of_negatives)
-        # to avoid the case where no positive boxes were sampled
+        # multiplication is to avoid the case where no positive boxes were sampled
         neg_class_loss = tf.reduce_sum(top_k_worst) * \
                          tf.cast(tf.greater(true_number_of_negatives, 0), tf.float32)
         class_loss = (neg_class_loss + pos_class_loss) / num_pos_float
         tf.summary.scalar('loss/class_neg', neg_class_loss / tf.to_float(number_of_negatives))
         tf.summary.scalar('loss/class', class_loss)
 
-        bbox_loss = tf.reduce_mean(smooth_l1(tf.boolean_mask(location, pos_mask),
-                                            tf.boolean_mask(refine_ph, pos_mask)))
+        # cond is to avoid the case where no positive boxes were sampled
+        bbox_loss = tf.cond(tf.equal(tf.reduce_sum(tf.cast(pos_mask, tf.int32)), 0),
+                            lambda: 0.0,
+                            lambda: tf.reduce_mean(smooth_l1(tf.boolean_mask(location, pos_mask),
+                                                             tf.boolean_mask(refine_ph, pos_mask))))
         tf.summary.scalar('loss/bbox', bbox_loss)
 
         inferred_class = tf.cast(tf.argmax(confidence, 2), tf.int32)
