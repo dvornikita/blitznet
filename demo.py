@@ -4,13 +4,11 @@ from PIL import Image
 from os import path as osp
 from glob import glob
 
-from paths import DEMO_DIR
+from paths import demo_dir, eval_dir
 from detector import Detector
 from config import args, train_dir
 from config import config as net_config
 from resnet import ResNet
-
-slim = tf.contrib.slim
 
 VOC_CATS = ['__background__', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
             'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',
@@ -34,8 +32,9 @@ class Loader():
         filenames = [n.split('/')[-1][:-len(self.data_format)] for n in files]
         return filenames
 
-    def load_image(self, name):
-        im = Image.open(osp.join(self.folder, name + self.data_format)).convert('RGB')
+    def load_image(self, name=None, path=None):
+        path = path if path else osp.join(self.folder, name + self.data_format)
+        im = Image.open(path).convert('RGB')
         im = np.array(im) / 255.0
         im = im.astype(np.float32)
         return im
@@ -48,7 +47,7 @@ def main(argv=None):  # pylint: disable=unused-argument
     assert args.detect or args.segment, "Either detect or segment should be True"
     assert args.ckpt > 0, "Specify the number of checkpoint"
     net = ResNet(config=net_config, depth=50, training=False)
-    loader = Loader()
+    loader = Loader(osp.join(EVAL_DIR, 'demodemo'))
 
 
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
