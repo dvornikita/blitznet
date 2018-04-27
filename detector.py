@@ -40,7 +40,8 @@ class Detector(object):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
-    def draw_rectangle(self, draw, coordinates, color, width=1):
+    @staticmethod
+    def draw_rectangle(draw, coordinates, color, width=1):
         for i in range(width):
             rect_start = (coordinates[0] - i, coordinates[1] - i)
             rect_end = (coordinates[2] + i, coordinates[3] + i)

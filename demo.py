@@ -4,7 +4,7 @@ from PIL import Image
 from os import path as osp
 from glob import glob
 
-from paths import demo_dir, eval_dir
+from paths import DEMO_DIR, EVAL_DIR
 from detector import Detector
 from config import args, train_dir
 from config import config as net_config

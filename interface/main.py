@@ -2,16 +2,19 @@ import os, sys
 import shutil
 import subprocess
 import tensorflow as tf
+import numpy as np
 import tkinter as tk
+import cv2
 
 from glob import glob
 from os.path import join as opj
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageDraw, ImageFont
 from tkinter.filedialog import askopenfilename
 from tkinter.messagebox import showerror
 
-sys.path.insert(0, '/home/nik/Git/blitznet/')
+from demo_utils import put_transparent_mask, image_on_fixed_canvas, download_link
 
+sys.path.insert(0, '/home/nik/Git/blitznet/')
 
 from paths import EVAL_DIR
 from demo import Loader
@@ -20,11 +23,18 @@ from config import args, train_dir
 from config import config as net_config
 from resnet import ResNet
 
+draw_rectangle = Detector.draw_rectangle
+colors = np.load(opj(EVAL_DIR, 'Extra/colors.npy')).tolist()
+palette = np.load(opj(EVAL_DIR, 'Extra/palette.npy')).tolist()
+font = ImageFont.truetype(opj(EVAL_DIR, "Extra/FreeSansBold.ttf"), 14)
+
+
 class Application(tk.Frame):
     def __init__(self, master=None, sess=None):
         super().__init__(master)
         self.root=master
         self.root.resizable(width=1, height=1)
+        self.size = 900
         self.pack()
 
         self.create_widgets()
@@ -46,30 +56,48 @@ class Application(tk.Frame):
             return
 
     def create_widgets(self):
-        self.hi_there = tk.Button(self)
-        self.hi_there["text"] = "Run BlitzNet"
-        self.hi_there["command"] = self.run_blitznet
-        self.hi_there["fg"] = 'green'
-        self.hi_there.pack(side="top")
+        # Run BlitzNet button
+        self.run = tk.Button(self, text='Run BlitzNet',
+                             command=self.run_blitznet,
+                             fg='green', width=self.size // 8)
+        self.run.pack(side="top")
 
+        # Brows button
+        self.button = tk.Button(self, text="Browse",
+                                command=self.load_file,
+                                width=self.size // 8)
+        self.button.pack()
+
+        # from clipboard button
+        self.clip = tk.Button(self, text="From Clipboard",
+                              command=self.from_clipboard,
+                              width=self.size // 8)
+        self.clip.pack()
+
+        # Quit button
         self.quit = tk.Button(self, text='Quit', fg="red",
+                              width=self.size // 8,
                               command=self.root.destroy)
         self.quit.pack(side="bottom")
 
-        self.button = tk.Button(self, text="Browse", command=self.load_file, width=20)
-        self.button.pack()
-
-        # path = '/home/nik/Downloads/canada_street_racer.jpg'
+        # Image to be detected
         path = '/home/nik/Downloads/lock.jpeg'
-        img = ImageTk.PhotoImage(Image.open(path))
+        img = ImageTk.PhotoImage(Image.open(path).resize((self.size, self.size)))
         self.panel = tk.Label(self.root, image=img)
         self.panel.image = img
         self.panel.pack(side = "bottom", fill = "both", expand = "yes")
 
-    def change_image(self, path):
-        img = ImageTk.PhotoImage(Image.open(path))
+    def change_image(self, path=None):
+        img = image_on_fixed_canvas(Image.open(path), self.size)
+        img = ImageTk.PhotoImage(img)
         self.panel.configure(image=img)
         self.panel.image = img
+
+    def from_clipboard(self):
+        clipboard = self.clipboard_get()
+        print(clipboard)
+        self.filename = download_link(clipboard)
+        self.change_image(self.filename)
 
     def init_detectot(self):
         assert args.detect or args.segment, "Either detect or segment should be True"
@@ -85,17 +113,44 @@ class Application(tk.Frame):
         image = self.loader.load_image(path=self.filename)
         h, w = image.shape[:2]
         print('Processing {}'.format(name + self.loader.data_format))
-        self.detector.feed_forward(img=image, name=name, w=w, h=h, draw=True,
-                                   seg_gt=None, gt_bboxes=None, gt_cats=None)
-        self.change_image(opj(EVAL_DIR, 'demodemo', 'output',
-                              name + '_det_50' + self.loader.data_format))
+        output = self.detector.feed_forward(img=image, name=name, w=w, h=h, draw=False,
+                                            seg_gt=None, gt_bboxes=None, gt_cats=None)
+        boxes, scores, cats, mask, _ = output
+        proc_img = self.draw(self.filename, name, boxes, scores, cats, mask)
+        self.change_image(path=opj(EVAL_DIR, 'demodemo', 'output', name
+                                   + '_processed' + self.loader.data_format))
         print('Done')
+
+    def draw(self, img_path, name, dets, scores, cats, mask):
+        image = Image.open(img_path)
+        w, h = image.size
+
+        mask = cv2.resize(mask, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
+        image = put_transparent_mask(image, mask, palette)
+
+        dr = ImageDraw.Draw(image)
+
+        for i in range(len(cats)):
+            cat = cats[i]
+            score = scores[i]
+            bbox = np.array(dets[i])
+
+            bbox[[2, 3]] += bbox[[0, 1]]
+            color = colors[cat]
+            draw_rectangle(dr, bbox, color, width=5)
+            dr.text(bbox[:2], self.loader.ids_to_cats[cat] + ' ' + str(score),
+                    fill=color, font=font)
+
+        path_to_save = opj(EVAL_DIR, 'demodemo', 'output',
+                           name + '_processed' + self.loader.data_format)
+        image.save(path_to_save, 'JPEG')
+        return image
 
 
 def main(argv=None):  # pylint: disable=unused-argument
     root = tk.Tk()
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
-                                            log_device_placement=False)) as sess:
+                                          log_device_placement=False)) as sess:
         app = Application(master=root, sess=sess)
         app.mainloop()
 
