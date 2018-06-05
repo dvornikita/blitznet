@@ -68,6 +68,27 @@ and install all the requirements listed above.
     ```
 2. Check the output in `$HOME/Demo/output`.
 
+## Running BlitzNet with user interface (NEW)
+ 1. Go to the folder `$HOME/interface` and run demo.sh script. It will
+    initialize the network and run the user interface where you can upload your
+    images and apply the algorithm to them.
+ 2. The button `Browse` opens file dialog and allows to select an image on the
+    hard drive to operate on. To change the initial directory for browsing
+    modify the variable init_path in `$HOME/interface/main.py`
+
+    The button `From Clipboard` allows to grab the link to an image (in WEB) from
+    your clipboard (of course, you need to copy the link before) and to download it
+    automatically. To change a folder where the images are saved modify the
+    variable DOWNLOAD_ROOT in `$HOME/interface/demo_utils.py`.
+
+    After you chose an image using either way, the image will be displayed in
+    the application's window.
+ 3. To process an image with the algorithm press `Run BlitzNet` and in an
+    instance estimated bounding boxes and segmentation maps will be put on an
+    image and displayed for you.
+ 4. Press `View Classes` to see what categories the detector is trained on and
+    thus what it can detect.
+
 ## Training a model with ImageNet initialization
 1. Download the weights for [ResNet50](https://drive.google.com/open?id=0B7XqhdpFpfcIdWRTX1JSOEhubXM) or [VGG16](https://drive.google.com/open?id=0B7XqhdpFpfcITnk4X1p3ZDRqQmc) and unpack the archives to `$HOME/Weights_imagenet`. You can change this folder in `paths.py`. Note that we build our work based on the ResNet architecture so we recommend to use it in your experiments.
 2. To start training a model with ResNet50 backbone on VOC07+12 data (including extra annotations for segmentation) that operates on images of size 300x300 - a batch of 32 - and has a final layer of stride 4 to perform joint detection and segmentation with optimization strategy as in the original paper, you need to run the following command:

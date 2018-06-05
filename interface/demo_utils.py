@@ -1,3 +1,4 @@
+import os
 import sys
 import requests
 import numpy as np
@@ -6,7 +7,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from os.path import join as opj
 
-sys.path.insert(0, '/home/nik/Git/blitznet/')
+sys.path.insert(0, opj(os.path.dirname(os.path.realpath(__file__)), '../'))
 
 from paths import EVAL_DIR
 
@@ -14,6 +15,7 @@ VOC_CATS = ['__background__', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
             'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',
             'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train',
             'tvmonitor']
+DOWNLOAD_ROOT = '~/Downloads/'
 
 
 def put_transparent_mask(img, mask, palette):
@@ -41,7 +43,7 @@ def image_on_fixed_canvas(image, size=600):
 
 
 def download_link(link):
-    root = "/home/nik/Pictures/demo"
+    root = DOWNLOAD_ROOT
     r = requests.get(link)
     img = Image.open(BytesIO(r.content)).convert('RGB')
     random_path = opj(root, str(np.random.randint(0, 99999)) + '.jpg')
