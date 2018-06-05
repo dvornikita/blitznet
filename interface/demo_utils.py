@@ -1,10 +1,19 @@
+import sys
 import requests
 import numpy as np
 
 from io import BytesIO
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from os.path import join as opj
 
+sys.path.insert(0, '/home/nik/Git/blitznet/')
+
+from paths import EVAL_DIR
+
+VOC_CATS = ['__background__', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle',
+            'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse',
+            'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train',
+            'tvmonitor']
 
 
 def put_transparent_mask(img, mask, palette):
@@ -25,10 +34,11 @@ def image_on_fixed_canvas(image, size=600):
     scale = np.min([size / w, size / h])
     new_w, new_h = (np.array([w, h]) * scale).astype(int)
     image_to_paste = image.resize((new_w, new_h))
-    canvas = Image.new('RGBA', (size, size), (255, 255, 255))
+    canvas = Image.new('RGB', (size, size), (255, 255, 255))
     offset = ((size - new_w) // 2, (size - new_h) // 2)
     canvas.paste(image_to_paste, offset)
     return canvas
+
 
 def download_link(link):
     root = "/home/nik/Pictures/demo"
@@ -37,6 +47,22 @@ def download_link(link):
     random_path = opj(root, str(np.random.randint(0, 99999)) + '.jpg')
     img.save(random_path, 'JPEG')
     return random_path
+
+
+def make_teaser(size, colors):
+    step = (size - 100) // 10
+    canvas = Image.new('RGB', (size, size), (255, 255, 255))
+    dr = ImageDraw.Draw(canvas)
+    font_size = int(size / 60 + 10)
+    font = ImageFont.truetype(opj(EVAL_DIR, "Extra/FreeSansBold.ttf"), font_size)
+
+    for i in range(1, 21):
+        corner = (100 + size / 2 * (i > 10), step * ((i - 1) % 10) + step)
+        category = VOC_CATS[i]
+        color = colors[i]
+        dr.text(corner, category, fill=color, font=font)
+
+    return canvas
 
 
 if __name__ == "__main__":
