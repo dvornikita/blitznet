@@ -65,7 +65,7 @@ class COCOLoader():
         self.ids_to_coco_ids = dict(map(reversed, self.coco_ids_to_internal.items()))
         self.split = split
         assert self.split in ['train2014', 'val2014', 'test2014', 'test2015', 'minival2014', 'valminusminival2014', 'test-dev2015']
-        self.root = DATASETS_ROOT + 'coco/'
+        self.root = os.path.join(DATASETS_ROOT, 'coco')
         self.included_coco_ids = list(coco_ids.values())
         if 'test' in self.split:
             json = '%s/annotations/image_info_%s.json'
@@ -84,7 +84,7 @@ class COCOLoader():
 
     def load_image(self, img_id):
         img = self.coco.loadImgs(img_id)[0]
-        img_str = '%simages/%s/%s' % (self.root, self.real_split, img['file_name'])
+        img_str = '%s/images/%s/%s' % (self.root, self.real_split, img['file_name'])
         if self.split == 'test-dev2015':
             img_str = img_str.replace('test-dev2015', 'test2015')
         im = cv2.imread(img_str, cv2.IMREAD_COLOR)
