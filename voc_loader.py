@@ -101,5 +101,5 @@ class VOCLoader():
         else:
             # if there is no segmentation for a particular image we fill the mask
             # with zeros to keep the same amount of tensors but don't learn from it
-            segmentation = np.zeros([height, width], dtype=np.uint8)
+            segmentation = np.zeros([height, width], dtype=np.uint8) + 255
         return segmentation
