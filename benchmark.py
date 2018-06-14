@@ -9,7 +9,7 @@ from config import config as net_config
 from paths import CKPT_ROOT
 from utils import decode_bboxes, batch_iou
 
-import cv2
+from skimage.transform import resize as imresize
 
 from resnet import ResNet
 from boxer import PriorBoxGrid
@@ -68,10 +68,6 @@ def main(argv=None):  # pylint: disable=unused-argument
                                             axis=-1), tf.int32)
     times = []
 
-    # im = cv2.imread("/home/lear/kshmelko/testImage.jpg")
-    # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)/255.0
-    # im = im.astype(np.float32)
-
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True,
                                           log_device_placement=False)) as sess:
 
@@ -84,7 +80,7 @@ def main(argv=None):  # pylint: disable=unused-argument
         saver.restore(sess, ckpt_path)
         for i in range(200):
             im = loader.load_image(loader.get_filenames()[i])
-            im = cv2.resize(im, (img_size, img_size))
+            im = imresize(im, (img_size, img_size))
             im = im.reshape((1, img_size, img_size, 3))
             st = time.time()
             sess.run([detection_list, score_list, segmentation], feed_dict={image_ph: im})

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-import cv2
+from skimage.transform import resize as imresize
 
 import numpy as np
 import tensorflow as tf
@@ -90,8 +90,7 @@ class Detector(object):
         palette = np.load('Extra/palette.npy').tolist()
         img_size = (img.shape[1], img.shape[0])
 
-        segmentation = cv2.resize(segmentation, dsize=img_size,
-                                  interpolation=cv2.INTER_NEAREST)
+        segmentation = imresize(segmentation, img_size, order=0, preserve_range=True).astype(int)
 
         image = Image.fromarray((img * 255).astype('uint8'))
         segmentation_draw = Image.fromarray((segmentation).astype('uint8'), 'P')
