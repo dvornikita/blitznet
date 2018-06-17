@@ -3,7 +3,7 @@ from paths import DATASETS_ROOT
 from pycocotools.coco import COCO
 from pycocotools import mask
 
-import cv2
+from skimage.transform import resize as imresize
 import numpy as np
 
 import logging
@@ -87,9 +87,7 @@ class COCOLoader():
         img_str = '%s/images/%s/%s' % (self.root, self.real_split, img['file_name'])
         if self.split == 'test-dev2015':
             img_str = img_str.replace('test-dev2015', 'test2015')
-        im = cv2.imread(img_str, cv2.IMREAD_COLOR)
-        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)/255.0
-        im = im.astype(np.float32)
+        im = np.array(Image.open(img_str)).astype(np.float32)
         return im
 
     def get_filenames(self):

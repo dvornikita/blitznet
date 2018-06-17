@@ -16,7 +16,7 @@ colors = np.load(opj(EVAL_DIR, 'Extra/colors.npy')).tolist()
 font = ImageFont.truetype(opj(EVAL_DIR, "Extra/FreeSansBold.ttf"), 20)
 
 
-size = 600
+size = 500
 step = (size - 100) // 10
 canvas = Image.new('RGB', (size, size), (255, 255, 255))
 dr = ImageDraw.Draw(canvas)

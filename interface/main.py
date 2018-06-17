@@ -4,8 +4,8 @@ import subprocess
 import tensorflow as tf
 import numpy as np
 import tkinter as tk
-import cv2
 
+from skimage.transform import resize as imresize
 from glob import glob
 from os.path import join as opj
 from PIL import ImageTk, Image, ImageDraw, ImageFont
@@ -37,7 +37,7 @@ class Application(tk.Frame):
         super().__init__(master)
         self.root=master
         self.root.resizable(width=1, height=1)
-        self.size = 900
+        self.size = 1200
         self.pack()
 
         self.create_widgets()
@@ -145,7 +145,7 @@ class Application(tk.Frame):
         image = Image.open(img_path)
         w, h = image.size
 
-        mask = cv2.resize(mask, dsize=(w, h), interpolation=cv2.INTER_NEAREST)
+        mask = imresize(mask, (h, w), order=0, preserve_range=True).astype(int)
         image = put_transparent_mask(image, mask, palette)
 
         dr = ImageDraw.Draw(image)

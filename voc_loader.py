@@ -1,6 +1,5 @@
 import logging
 import os
-import cv2
 
 import numpy as np
 import xml.etree.ElementTree as ET
