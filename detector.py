@@ -88,7 +88,7 @@ class Detector(object):
     def draw_seg(self, img, seg_gt, segmentation, name):
         """Applies generated segmentation mask to an image"""
         palette = np.load('Extra/palette.npy').tolist()
-        img_size = (img.shape[1], img.shape[0])
+        img_size = (img.shape[0], img.shape[1])
 
         segmentation = imresize(segmentation, img_size, order=0, preserve_range=True).astype(int)
 
