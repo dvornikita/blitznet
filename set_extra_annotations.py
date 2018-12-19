@@ -25,7 +25,7 @@ copyfile(os.path.join(EVAL_DIR, 'Extra', 'train_extra_annot.txt'),
 
 # Downloading extra data and extracting it
 print(' - Downloading extra data')
-data_link = 'http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/semantic_contours/benchmark.tgz'
+data_link = 'https://drive.google.com/uc?export=download&id=1EQSKo5n2obj7tW8RytYTJ-eEYbXqtUXE'
 archive_name = os.path.join(DATASETS_ROOT, 'benchmark.tgz')
 extra_folder_name = os.path.join(DATASETS_ROOT, 'benchmark')
 if not os.path.exists(archive_name):
